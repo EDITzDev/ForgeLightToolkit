@@ -1,0 +1,18 @@
+{
+  "name": "com.hybr2d.forgelighttoolkit",
+  "version": "1.0.0",
+  "displayName": "ForgeLight Toolkit",
+  "description": "ForgeLight Toolkit allows you to import and use ForgeLight assets in Unity.",
+  "unity": "2019.1",
+  "unityRelease": "0b5",
+  "keywords": [
+    "ForgeLight",
+    "Clone Wars Adventures",
+    "Free Realms"
+  ],
+  "author": {
+    "name": "EDITz",
+    "email": "hello@hybr2d.com",
+    "url": "https://hybr2d.com"
+  }
+}
