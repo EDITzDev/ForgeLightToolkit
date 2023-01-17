@@ -19,17 +19,17 @@ namespace ForgeLightToolkit.Editor
 
         private static readonly Lazy<MaterialInfo> _instance = new(() =>
         {
-            var serializer = new XmlSerializer(typeof(MaterialInfo));
-
-            var materialInfoData = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/ForgeLight/materials_3.xml");
+            var materialInfoData = AssetDatabase.LoadAssetAtPath<TextAsset>("Packages/com.hybr2d.forgelighttoolkit/Editor/Assets/materials_3.xml");
 
             if (materialInfoData is null)
             {
-                Debug.LogError("Failed to find Assets/ForgeLight/materials_3.xml.");
+                Debug.LogError("Failed to find materials_3.xml.");
                 return null;
             }
 
             using var fileStream = new MemoryStream(materialInfoData.bytes);
+
+            var serializer = new XmlSerializer(typeof(MaterialInfo));
 
             return serializer.Deserialize(fileStream) as MaterialInfo;
         });
