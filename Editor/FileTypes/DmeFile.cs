@@ -110,17 +110,26 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 var drawStyle = materialDefinition.DrawStyles.First();
 
                 if (drawStyle is null)
+                {
+                    Debug.LogError("Material Definition doesn't contain a DrawStyle.");
                     return false;
+                }
 
                 var inputLayout = MaterialInfo.Instance.InputLayouts.FirstOrDefault(x => x.NameHash == drawStyle.InputLayoutHash);
 
                 if (inputLayout is null)
+                {
+                    Debug.LogError("Failed to find Input Layout.");
                     return false;
+                }
 
                 var positionEntry = inputLayout.Entries.FirstOrDefault(x => x.Usage == MaterialInfo.InputLayout.Entry.EntryUsage.Position);
 
                 if (positionEntry is null)
+                {
+                    Debug.LogError("Model doesn't have a position entry.");
                     return false;
+                }
 
                 if (positionEntry.Type == MaterialInfo.InputLayout.Entry.EntryType.Float3)
                 {
@@ -140,43 +149,47 @@ namespace ForgeLightToolkit.Editor.FileTypes
 
                 var normalEntry = inputLayout.Entries.FirstOrDefault(x => x.Usage == MaterialInfo.InputLayout.Entry.EntryUsage.Normal);
 
-                if (normalEntry is null)
-                    return false;
-
-                if (normalEntry.Type == MaterialInfo.InputLayout.Entry.EntryType.Float3)
+                if (normalEntry is not null)
                 {
-                    for (var j = 0; j < model.VertexBufferCount; j++)
+                    if (normalEntry.Type == MaterialInfo.InputLayout.Entry.EntryType.Float3)
                     {
-                        var x = BitConverter.ToSingle(model.VertexBuffer, normalEntry.Offset + j * model.VertexSize + 0);
-                        var y = BitConverter.ToSingle(model.VertexBuffer, normalEntry.Offset + j * model.VertexSize + 4);
-                        var z = BitConverter.ToSingle(model.VertexBuffer, normalEntry.Offset + j * model.VertexSize + 8);
+                        for (var j = 0; j < model.VertexBufferCount; j++)
+                        {
+                            var startIndex = normalEntry.Offset + j * model.VertexSize;
 
-                        normals.Add(new Vector3(x, y, z));
+                            Debug.Log(startIndex);
+
+                            var x = BitConverter.ToSingle(model.VertexBuffer, startIndex + 0);
+                            var y = BitConverter.ToSingle(model.VertexBuffer, startIndex + 4);
+                            var z = BitConverter.ToSingle(model.VertexBuffer, startIndex + 8);
+
+                            normals.Add(new Vector3(x, y, z));
+                        }
                     }
-                }
-                else
-                {
-                    throw new NotImplementedException();
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
                 }
 
                 var texCoordEntry = inputLayout.Entries.FirstOrDefault(x => x.Usage == MaterialInfo.InputLayout.Entry.EntryUsage.TexCoord);
 
-                if (texCoordEntry is null)
-                    return false;
-
-                if (texCoordEntry.Type == MaterialInfo.InputLayout.Entry.EntryType.Float2)
+                if (texCoordEntry is not null)
                 {
-                    for (var j = 0; j < model.VertexBufferCount; j++)
+                    if (texCoordEntry.Type == MaterialInfo.InputLayout.Entry.EntryType.Float2)
                     {
-                        var x = BitConverter.ToSingle(model.VertexBuffer, texCoordEntry.Offset + j * model.VertexSize + 0);
-                        var y = BitConverter.ToSingle(model.VertexBuffer, texCoordEntry.Offset + j * model.VertexSize + 4);
+                        for (var j = 0; j < model.VertexBufferCount; j++)
+                        {
+                            var x = BitConverter.ToSingle(model.VertexBuffer, texCoordEntry.Offset + j * model.VertexSize + 0);
+                            var y = BitConverter.ToSingle(model.VertexBuffer, texCoordEntry.Offset + j * model.VertexSize + 4);
 
-                        uvs.Add(new Vector2(x, y));
+                            uvs.Add(new Vector2(x, y));
+                        }
                     }
-                }
-                else
-                {
-                    throw new NotImplementedException();
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
                 }
 
                 for (var j = 0; j < model.IndexBufferCount; j++)

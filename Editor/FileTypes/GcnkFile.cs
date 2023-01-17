@@ -134,7 +134,7 @@ namespace ForgeLightToolkit.Editor.FileTypes
 
                     // TODO: Height Map
 
-                    reader.Skip(heightMapSize * heightMapSize * heightMapBbp);
+                    reader.Skip(heightMapSize * heightMapSize * heightMapBbp / 2);
 
                     /* var data = new byte[heightMapSize * heightMapSize * heightMapBbp];
 
