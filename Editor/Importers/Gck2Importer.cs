@@ -12,7 +12,7 @@ namespace ForgeLightToolkit.Editor.Importers
         {
             if (string.IsNullOrEmpty(ctx.assetPath))
             {
-                ctx.LogImportError("Invalid asset path.");
+                ctx.LogImportError($"Invalid asset path. ({ctx.assetPath})");
                 return;
             }
 
@@ -20,7 +20,7 @@ namespace ForgeLightToolkit.Editor.Importers
 
             if(!gck2File.Load(ctx.assetPath))
             {
-                ctx.LogImportError("Failed to load gck2 file.");
+                ctx.LogImportError($"Failed to load gck2 file. ({ctx.assetPath})");
                 return;
             }
 

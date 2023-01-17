@@ -162,7 +162,16 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 name = name
             };
 
-            Texture.LoadRawTextureData(data);
+            try
+            {
+                Texture.LoadRawTextureData(data);
+            }
+            catch (UnityException e)
+            {
+                Debug.LogError(e);
+                return false;
+            }
+
             Texture.Apply();
 
             return true;

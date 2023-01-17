@@ -146,7 +146,16 @@ namespace ForgeLightToolkit.Editor.FileTypes
                         requestedMipmapLevel = 1
                     };
 
-                    HeightMap.LoadRawTextureData(data);
+                    try
+                    {
+                        HeightMap.LoadRawTextureData(data);
+                    }
+                    catch (UnityException e)
+                    {
+                        Debug.LogError(e);
+                        return false;
+                    }
+
                     HeightMap.Apply();
                 }
             }

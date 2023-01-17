@@ -1,14 +1,18 @@
 {
     "name": "ForgeLightToolkit",
     "rootNamespace": "ForgeLightToolkit",
-    "references": [],
+    "references": [
+        "GUID:237ebda5d022bc942846096a0f08f009"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }

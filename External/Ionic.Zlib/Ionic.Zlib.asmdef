@@ -8,7 +8,10 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "UNITY_EDITOR",
+        "!UNITY_WSA || !UNITY_WP8"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
