@@ -132,7 +132,11 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 {
                     var heightMapSize = reader.ReadInt32();
 
-                    var data = new byte[heightMapSize * heightMapSize * heightMapBbp];
+                    // TODO: Height Map
+
+                    reader.Skip(heightMapSize * heightMapSize * heightMapBbp);
+
+                    /* var data = new byte[heightMapSize * heightMapSize * heightMapBbp];
 
                     for (var i = 0; i < data.Length; i += 2)
                     {
@@ -146,17 +150,8 @@ namespace ForgeLightToolkit.Editor.FileTypes
                         requestedMipmapLevel = 1
                     };
 
-                    try
-                    {
-                        HeightMap.LoadRawTextureData(data);
-                    }
-                    catch (UnityException e)
-                    {
-                        Debug.LogError(e);
-                        return false;
-                    }
-
-                    HeightMap.Apply();
+                    HeightMap.LoadRawTextureData(data);
+                    HeightMap.Apply(); */
                 }
             }
 
