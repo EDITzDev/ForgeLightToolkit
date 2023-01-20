@@ -26,7 +26,7 @@ namespace ForgeLightToolkit.Editor
 
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
+            GUILayout.BeginArea(new Rect(0, 0, Screen.width / EditorGUIUtility.pixelsPerPoint, Screen.height / EditorGUIUtility.pixelsPerPoint));
 
             GUILayout.Space(20);
 
