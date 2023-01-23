@@ -121,9 +121,14 @@ namespace ForgeLightToolkit.Editor
 
         private void LoadWorld(string worldName, string assetsPath, bool loadObjects, bool loadLights, bool loadRoadMap)
         {
-            var worldObject = new GameObject($"World ({worldName})");
+            // TODO: Load worlds using the .gzne
 
-            var gcnkFileAssetGuids = AssetDatabase.FindAssets($"{worldName} t:GcnkFile", new[] { assetsPath });
+            var gcnkFileAssetGuids = AssetDatabase.FindAssets($"glob:\"{assetsPath}/{worldName}_(-[0-9]|[0-9]|-[0-9][0-9]|[0-9][0-9])_(-[0-9]|[0-9]|-[0-9][0-9]|[0-9][0-9]).gcnk\"");
+
+            if(gcnkFileAssetGuids.Length <= 0)
+                return;
+
+            var worldObject = new GameObject($"World ({worldName})");
 
             foreach (var gcnkFileAssetGuid in gcnkFileAssetGuids)
             {
