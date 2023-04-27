@@ -109,6 +109,7 @@ namespace ForgeLightToolkit.Editor
                     [XmlEnum("Depth")] Depth
                 }
 
+                [XmlAttribute]
                 public int UsageIndex { get; set; }
             }
         }

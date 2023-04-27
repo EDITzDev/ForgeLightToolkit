@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
-
+using ForgeLightToolkit.Editor.FileTypes.Map;
 using UnityEngine;
 
 namespace ForgeLightToolkit.Editor.FileTypes
@@ -10,24 +10,6 @@ namespace ForgeLightToolkit.Editor.FileTypes
     {
         [HideInInspector]
         public List<Node> Nodes = new();
-
-        [Serializable]
-        public struct Node
-        {
-            public int Id;
-
-            public Vector3 Position;
-
-            public Edge[] Edges;
-        }
-
-        [Serializable]
-        public struct Edge
-        {
-            public int Id;
-
-            public float Distance;
-        }
 
         public bool Load(string filePath)
         {

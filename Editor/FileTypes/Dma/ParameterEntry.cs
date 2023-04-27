@@ -17,7 +17,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dma
         public float Float;
         public Vector4 Vector4;
         public Matrix4x4 Matrix4x4;
-        public uint Uint;
+        public uint Object;
 
         public void Deserialize(Reader reader)
         {
@@ -52,8 +52,11 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dma
                     break;
 
                 case D3DXPARAMETER_CLASS.D3DXPC_OBJECT:
-                    Uint = parameterReader.ReadUInt32();
+                    Object = parameterReader.ReadUInt32();
                     break;
+
+                default:
+                    throw new NotImplementedException();
             }
         }
     }

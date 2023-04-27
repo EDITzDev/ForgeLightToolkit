@@ -1,11 +1,14 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 using UnityEditor;
 using UnityEngine;
 
 using ForgeLightToolkit.Editor.FileTypes;
 using ForgeLightToolkit.Editor.FileTypes.Dma;
+using ForgeLightToolkit.Editor.FileTypes.Map;
+using ForgeLightToolkit.Editor.FileTypes.Gcnk;
 
 namespace ForgeLightToolkit.Editor
 {
@@ -98,7 +101,7 @@ namespace ForgeLightToolkit.Editor
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            
+
             _loadRoadMap = GUILayout.Toggle(_loadRoadMap, "Road Map (FR Only)");
 
             GUILayout.FlexibleSpace();
@@ -125,10 +128,12 @@ namespace ForgeLightToolkit.Editor
 
             var gcnkFileAssetGuids = AssetDatabase.FindAssets($"glob:\"{assetsPath}/{worldName}_(-[0-9]|[0-9]|-[0-9][0-9]|[0-9][0-9])_(-[0-9]|[0-9]|-[0-9][0-9]|[0-9][0-9]).gcnk\"");
 
-            if(gcnkFileAssetGuids.Length <= 0)
+            if (gcnkFileAssetGuids.Length <= 0)
                 return;
 
             var worldObject = new GameObject($"World ({worldName})");
+
+            var loadedRuntimeObjects = new Dictionary<int, RuntimeObject>();
 
             foreach (var gcnkFileAssetGuid in gcnkFileAssetGuids)
             {
@@ -166,126 +171,169 @@ namespace ForgeLightToolkit.Editor
 
                 chunkMeshRenderer.materials = chunkMaterials;
 
-                if (!loadObjects)
-                    continue;
-
-                var runtimeObjects = gcnkFile.Tiles.SelectMany(x => x.RuntimeObjects).GroupBy(x => x.ObjectId)
-                    .Select(x => x.First());
-
-                foreach (var tileRuntimeObject in runtimeObjects)
+                if (loadObjects)
                 {
-                    var adrFilePath = Path.Combine(assetsPath, tileRuntimeObject.FileName);
+                    var runtimeObjects = gcnkFile.Tiles.SelectMany(x => x.RuntimeObjects).GroupBy(x => x.ObjectId)
+                        .Select(x => x.First());
 
-                    var adrFile = AssetDatabase.LoadAssetAtPath<AdrFile>(adrFilePath);
-
-                    if (adrFile is null)
+                    foreach (var tileRuntimeObject in runtimeObjects)
                     {
-                        Debug.LogError($"Failed to load file. {adrFilePath}");
-                        continue;
-                    }
+                        if (!loadedRuntimeObjects.TryAdd(tileRuntimeObject.ObjectId, tileRuntimeObject))
+                            continue;
 
-                    if (adrFile.ModelFileName is null)
-                    {
-                        Debug.LogError($"Adr has no model file name. {adrFilePath}");
-                        continue;
-                    }
+                        var adrFilePath = Path.Combine(assetsPath, tileRuntimeObject.FileName);
 
-                    var dmeFilePath = Path.Combine(assetsPath, adrFile.ModelFileName);
+                        var adrFile = AssetDatabase.LoadAssetAtPath<AdrFile>(adrFilePath);
 
-                    var dmeFile = AssetDatabase.LoadAssetAtPath<DmeFile>(dmeFilePath);
-
-                    if (dmeFile is null)
-                    {
-                        Debug.LogError($"Failed to load file. {dmeFilePath}");
-                        continue;
-                    }
-
-                    var runtimeObject = new GameObject($"Object ({tileRuntimeObject.FileName})")
-                    {
-                        transform =
+                        if (adrFile is null)
                         {
-                            parent = chunkObject.transform,
-                            localPosition = tileRuntimeObject.Position,
-                            localScale = new Vector3(tileRuntimeObject.Scale, tileRuntimeObject.Scale, tileRuntimeObject.Scale),
-                            localRotation = Quaternion.Euler(tileRuntimeObject.Rotation.y * Mathf.Rad2Deg, tileRuntimeObject.Rotation.x * Mathf.Rad2Deg, tileRuntimeObject.Rotation.z * Mathf.Rad2Deg)
+                            Debug.LogError($"Failed to load file. {adrFilePath}");
+                            continue;
                         }
-                    };
 
-                    var objectMeshFilter = runtimeObject.AddComponent<MeshFilter>();
-
-                    objectMeshFilter.sharedMesh = dmeFile.Mesh;
-
-                    var objectMeshRenderer = runtimeObject.AddComponent<MeshRenderer>();
-
-                    var objectMaterials = new Material[dmeFile.ModelCount];
-
-                    for (var i = 0; i < objectMaterials.Length; i++)
-                    {
-                        var materialEntry = dmeFile.DmaFile.MaterialEntries[i];
-
-                        foreach (var parameterEntry in materialEntry.ParameterEntries)
+                        if (adrFile.ModelFileName is null)
                         {
-                            if (parameterEntry.Class != D3DXPARAMETER_CLASS.D3DXPC_OBJECT ||
-                                parameterEntry.Type != D3DXPARAMETER_TYPE.D3DXPT_TEXTURE)
-                                continue;
-
-                            var textureHash = parameterEntry.Uint;
-
-                            foreach (var textureName in dmeFile.DmaFile.Textures)
-                            {
-                                if (JenkinsHelper.JenkinsOneAtATimeHash(textureName.ToUpper()) != textureHash)
-                                    continue;
-
-                                var textureFilePath = Path.Combine(assetsPath, textureName);
-
-                                var texture2d = AssetDatabase.LoadAssetAtPath<Texture2D>(textureFilePath);
-
-                                if (texture2d is null)
-                                {
-                                    Debug.LogError($"Failed to find texture. {textureFilePath}");
-                                    continue;
-                                }
-
-                                var objectMaterial = new Material(Shader.Find("Custom/ForgeLight"))
-                                {
-                                    name = textureName,
-                                    mainTexture = texture2d,
-                                    mainTextureScale = Vector2.right + Vector2.down
-                                };
-
-                                objectMaterials[i] = objectMaterial;
-
-                                // TODO: Use only one texture for now.
-
-                                break;
-                            }
+                            Debug.LogError($"Adr has no model file name. {adrFilePath}");
+                            continue;
                         }
-                    }
 
-                    objectMeshRenderer.materials = objectMaterials;
-                }
+                        var dmeFilePath = Path.Combine(assetsPath, adrFile.ModelFileName);
 
-                if (!loadLights)
-                    continue;
+                        var dmeFile = AssetDatabase.LoadAssetAtPath<DmeFile>(dmeFilePath);
 
-                foreach (var tile in gcnkFile.Tiles)
-                {
-                    foreach (var rawLight in tile.RawLights)
-                    {
-                        var lightObject = new GameObject($"Light ({rawLight.Name})")
+                        if (dmeFile is null)
+                        {
+                            Debug.LogError($"Failed to load file. {dmeFilePath}");
+                            continue;
+                        }
+
+                        var runtimeObject = new GameObject($"Object ({tileRuntimeObject.ObjectId} - {tileRuntimeObject.FileName})")
                         {
                             transform =
                             {
                                 parent = chunkObject.transform,
-                                position = rawLight.Position
+                                localPosition = tileRuntimeObject.Position,
+                                localScale = new Vector3(tileRuntimeObject.Scale, tileRuntimeObject.Scale, tileRuntimeObject.Scale),
+                                localRotation = Quaternion.Euler(tileRuntimeObject.Rotation.y * Mathf.Rad2Deg, tileRuntimeObject.Rotation.x * Mathf.Rad2Deg, tileRuntimeObject.Rotation.z * Mathf.Rad2Deg)
                             }
                         };
 
-                        var lightComp = lightObject.AddComponent<Light>();
+                        foreach (var meshEntry in dmeFile.Meshes)
+                        {
+                            var meshObject = new GameObject(meshEntry.Mesh.name)
+                            {
+                                transform =
+                                {
+                                    parent = runtimeObject.transform,
+                                    localPosition = Vector3.zero,
+                                    localScale = Vector3.one,
+                                    localRotation = Quaternion.identity,
+                                    // localScale = new Vector3(tileRuntimeObject.Scale, tileRuntimeObject.Scale, tileRuntimeObject.Scale),
+                                    // localRotation = Quaternion.Euler(tileRuntimeObject.Rotation.y * Mathf.Rad2Deg, tileRuntimeObject.Rotation.x * Mathf.Rad2Deg, tileRuntimeObject.Rotation.z * Mathf.Rad2Deg)
+                                }
+                            };
 
-                        lightComp.range = rawLight.Range;
-                        lightComp.color = rawLight.Color;
-                        lightComp.intensity = rawLight.Intensity;
+                            var objectMeshFilter = meshObject.AddComponent<MeshFilter>();
+
+                            objectMeshFilter.sharedMesh = meshEntry.Mesh;
+
+                            var objectMeshRenderer = meshObject.AddComponent<MeshRenderer>();
+
+                            var materialEntry = dmeFile.DmaFile.MaterialEntries[meshEntry.MaterialIndex];
+
+                            var materialDefinition = MaterialInfo.Instance.MaterialDefinitions.FirstOrDefault(x => x.NameHash == materialEntry.Hash);
+
+                            if (materialDefinition is null)
+                                continue;
+
+                            var materialShader = Shader.Find($"Custom/{materialDefinition.Name}");
+
+                            if (materialShader is null)
+                                materialShader = Shader.Find("Standard");
+
+                            /* if (materialShader is null)
+                            {
+                                Debug.LogWarning($"Missing Shader \"{materialDefinition.Name}\" for Object \"{tileRuntimeObject.FileName}\".");
+                                continue;
+                            } */
+
+                            var objectMaterial = new Material(materialShader);
+
+                            foreach (var parameterEntry in materialEntry.ParameterEntries)
+                            {
+                                var parameterName = $"_{(ParameterName)parameterEntry.Hash}";
+
+                                if (!objectMaterial.HasProperty(parameterName))
+                                    Debug.LogWarning($"{materialDefinition.Name}\t{parameterName}\t{parameterEntry.Class}\t{parameterEntry.Type}\t{parameterEntry.Int}\t{parameterEntry.Float}\t{parameterEntry.Vector4}\t{parameterEntry.Matrix4x4}\t{parameterEntry.Object}");
+
+                                if (parameterEntry.Class == D3DXPARAMETER_CLASS.D3DXPC_SCALAR)
+                                {
+                                    if (parameterEntry.Type == D3DXPARAMETER_TYPE.D3DXPT_FLOAT)
+                                        objectMaterial.SetFloat(parameterName, parameterEntry.Float);
+                                    else
+                                        objectMaterial.SetInteger(parameterName, parameterEntry.Int);
+                                }
+                                else if (parameterEntry.Class == D3DXPARAMETER_CLASS.D3DXPC_VECTOR)
+                                {
+                                    objectMaterial.SetVector(parameterName, parameterEntry.Vector4);
+                                }
+                                else if (parameterEntry.Class is D3DXPARAMETER_CLASS.D3DXPC_MATRIX_ROWS or D3DXPARAMETER_CLASS.D3DXPC_MATRIX_COLUMNS)
+                                {
+                                    objectMaterial.SetMatrix(parameterName, parameterEntry.Matrix4x4);
+                                }
+                                else if (parameterEntry.Class == D3DXPARAMETER_CLASS.D3DXPC_OBJECT)
+                                {
+                                    var textureHash = parameterEntry.Object;
+
+                                    var textureName = dmeFile.DmaFile.Textures.FirstOrDefault(x => JenkinsHelper.JenkinsOneAtATimeHash(x.ToUpper()) == textureHash);
+
+                                    if (textureName is null)
+                                    {
+                                        Debug.LogError($"Failed to find texture. {textureHash}");
+                                        continue;
+                                    }
+
+                                    var textureFilePath = Path.Combine(assetsPath, textureName);
+
+                                    var texture2d = AssetDatabase.LoadAssetAtPath<Texture2D>(textureFilePath);
+
+                                    if (texture2d is null)
+                                    {
+                                        Debug.LogError($"Failed to find texture. {textureFilePath}");
+                                        continue;
+                                    }
+
+                                    objectMaterial.SetTexture(parameterName, texture2d);
+                                    objectMaterial.SetTextureScale(parameterName, Vector2.right + Vector2.down);
+                                }
+                            }
+
+                            objectMeshRenderer.material = objectMaterial;
+                        }
+                    }
+                }
+
+                if (loadLights)
+                {
+                    foreach (var tile in gcnkFile.Tiles)
+                    {
+                        foreach (var rawLight in tile.RawLights)
+                        {
+                            var lightObject = new GameObject($"Light ({rawLight.Name})")
+                            {
+                                transform =
+                                {
+                                    parent = chunkObject.transform,
+                                    position = rawLight.Position
+                                }
+                            };
+
+                            var lightComp = lightObject.AddComponent<Light>();
+
+                            lightComp.range = rawLight.Range;
+                            lightComp.color = rawLight.Color;
+                            lightComp.intensity = rawLight.Intensity;
+                        }
                     }
                 }
             }
@@ -308,10 +356,25 @@ namespace ForgeLightToolkit.Editor
 
                     foreach (var node in mapFile.Nodes)
                     {
-                        var nodeSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        var nodeObject = new GameObject($"Node ({node.Id})")
+                        {
+                            transform =
+                            {
+                                position = node.Position,
+                                parent = roadMapObject.transform
+                            }
+                        };
 
-                        nodeSphere.transform.position = node.Position;
-                        nodeSphere.transform.parent = roadMapObject.transform;
+                        var nodeRenderer = nodeObject.AddComponent<NodeRenderer>();
+
+                        nodeRenderer.Parent = node;
+
+                        foreach (var edge in node.Edges)
+                        {
+                            var edgeNode = mapFile.Nodes.FirstOrDefault(x => x.Id == edge.Id);
+
+                            nodeRenderer.EdgeNodes.Add(edgeNode);
+                        }
                     }
                 }
             }

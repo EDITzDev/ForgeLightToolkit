@@ -10,7 +10,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
     {
         private readonly int _version;
 
-        public int Unknown;
+        public int Unknown; // TODO
 
         public string FileName;
         public string Unknown3;
@@ -33,6 +33,20 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
         public RuntimeObject(int version)
         {
             _version = version;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Unknown)}: {Unknown}, " +
+                   $"{nameof(FileName)}: {FileName}, " +
+                   $"{nameof(Position)}: ({Position.x}, {Position.y}, {Position.z}), " +
+                   $"{nameof(Rotation)}: ({Rotation.x}, {Rotation.y}, {Rotation.z}), " +
+                   $"{nameof(Scale)}: {Scale}, " +
+                   $"{nameof(MaterialName)}: {MaterialName}, " +
+                   $"{nameof(TintAlias)}: {TintAlias}, " +
+                   $"{nameof(Unknown9)}: ({Unknown9.x}, {Unknown9.y}, {Unknown9.z}), " +
+                   $"{nameof(ObjectId)}: {ObjectId}, " +
+                   $"{nameof(Unknown11)}: {Unknown11}";
         }
 
         public void Deserialize(Reader reader)
@@ -67,7 +81,8 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
             }
             else
             {
-                throw new NotImplementedException();
+                var unknonw = reader.ReadNullTerminatedString();
+                Debug.Log($"Unknown RuntimeObject Value: {unknonw}");
             }
 
             Unknown11 = reader.ReadInt32();

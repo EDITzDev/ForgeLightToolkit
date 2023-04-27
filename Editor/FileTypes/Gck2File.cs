@@ -53,14 +53,12 @@ namespace ForgeLightToolkit.Editor.FileTypes
             if (!LoadTexture(decompressedStream))
                 return false;
 
-            Material = new Material(Shader.Find("Custom/ForgeLight"))
+            Material = new Material(Shader.Find("Custom/RuntimeTerrain"))
             {
                 name = name,
                 mainTexture = Texture,
                 mainTextureScale = Vector2.right + Vector2.down
             };
-
-            Material.SetFloat("_Mode", 1);
 
             return true;
         }

@@ -9,6 +9,7 @@ namespace ForgeLightToolkit.Editor.FileTypes
     public class AdrFile : ScriptableObject
     {
         public string? ModelFileName;
+        public string? MaterialFileName;
 
         public bool Load(string filePath)
         {
@@ -46,6 +47,10 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 {
                     case 1:
                         ModelFileName = reader.ReadNullTerminatedString();
+                        break;
+
+                    case 2:
+                        MaterialFileName = reader.ReadNullTerminatedString();
                         break;
 
                     default:
