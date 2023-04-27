@@ -220,7 +220,7 @@ namespace ForgeLightToolkit.Editor
 
                         foreach (var meshEntry in dmeFile.Meshes)
                         {
-                            var meshObject = new GameObject(meshEntry.Mesh.name)
+                            var meshObject = new GameObject()
                             {
                                 transform =
                                 {
@@ -245,6 +245,8 @@ namespace ForgeLightToolkit.Editor
 
                             if (materialDefinition is null)
                                 continue;
+
+                            meshObject.name = materialDefinition.Name;
 
                             var materialShader = Shader.Find($"Custom/{materialDefinition.Name}");
 
