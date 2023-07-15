@@ -14,8 +14,6 @@ namespace ForgeLightToolkit.Editor.FileTypes
 
         public Texture2D Texture;
 
-        public Material Material;
-
         public bool Load(string filePath)
         {
             name = Path.GetFileNameWithoutExtension(filePath);
@@ -52,13 +50,6 @@ namespace ForgeLightToolkit.Editor.FileTypes
 
             if (!LoadTexture(decompressedStream))
                 return false;
-
-            Material = new Material(Shader.Find("Custom/RuntimeTerrain"))
-            {
-                name = name,
-                mainTexture = Texture,
-                mainTextureScale = Vector2.right + Vector2.down
-            };
 
             return true;
         }

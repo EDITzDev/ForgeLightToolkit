@@ -81,8 +81,8 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
             }
             else
             {
-                var unknonw = reader.ReadNullTerminatedString();
-                Debug.Log($"Unknown RuntimeObject Value: {unknonw}");
+                var unknown = reader.ReadNullTerminatedString();
+                Debug.Log($"Unknown RuntimeObject Value: {unknown}");
             }
 
             Unknown11 = reader.ReadInt32();

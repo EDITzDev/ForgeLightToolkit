@@ -11,7 +11,9 @@ namespace ForgeLightToolkit.Editor
         private readonly Stream _stream;
         private readonly BinaryReader _br;
 
-        public Reader(string path)
+        public bool IsLittleEndian { get; set; }
+
+        public Reader(string path, bool isLittleEndian = true)
         {
             _stream = File.OpenRead(path);
 
@@ -19,13 +21,17 @@ namespace ForgeLightToolkit.Editor
                 throw new ArgumentNullException(nameof(_stream));
 
             _br = new BinaryReader(_stream);
+
+            IsLittleEndian = isLittleEndian;
         }
 
-        public Reader(Stream stream)
+        public Reader(Stream stream, bool isLittleEndian = true)
         {
             _stream = stream;
 
             _br = new BinaryReader(_stream);
+
+            IsLittleEndian = isLittleEndian;
         }
 
         public Reader(byte[] data) : this(new MemoryStream(data))
@@ -39,16 +45,49 @@ namespace ForgeLightToolkit.Editor
         public void Seek(int offset) => _stream.Seek(offset, SeekOrigin.Begin);
 
         public byte ReadByte() => _br.ReadByte();
+        public bool ReadBool() => _br.ReadByte() == 1;
         public char[] ReadChars(int count) => _br.ReadChars(count);
         public byte[] ReadBytes(int count) => _br.ReadBytes(count);
 
-        public short ReadInt16() => _br.ReadInt16();
-        public ushort ReadUInt16() => _br.ReadUInt16();
+        public short ReadInt16()
+        {
+            var value = _br.ReadInt16();
 
-        public int ReadInt32() => _br.ReadInt32();
-        public uint ReadUInt32() => _br.ReadUInt32();
+            return IsLittleEndian ? value : BinaryPrimitives.ReverseEndianness(value);
+        }
 
-        public float ReadSingle() => _br.ReadSingle();
+        public ushort ReadUInt16()
+        {
+            var value = _br.ReadUInt16();
+
+            return IsLittleEndian ? value : BinaryPrimitives.ReverseEndianness(value);
+        }
+
+        public int ReadInt32()
+        {
+            var value = _br.ReadInt32();
+
+            return IsLittleEndian ? value : BinaryPrimitives.ReverseEndianness(value);
+        }
+
+        public uint ReadUInt32()
+        {
+            var value = _br.ReadUInt32();
+
+            return IsLittleEndian ? value : BinaryPrimitives.ReverseEndianness(value);
+        }
+
+        public float ReadSingle()
+        {
+            if (IsLittleEndian)
+                return _br.ReadSingle();
+
+            var data = _br.ReadBytes(4);
+
+            Array.Reverse(data);
+
+            return BitConverter.ToSingle(data);
+        }
 
         public string ReadNullTerminatedString()
         {

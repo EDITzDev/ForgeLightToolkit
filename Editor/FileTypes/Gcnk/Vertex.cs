@@ -9,7 +9,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
         public Vector3 Normal;
 
         public Color32 Color;
-        public Color32 Color2;
+        public Vector4 Color2;
 
         public Vector2 TexCoord;
         public Vector2 TexCoord2;
@@ -29,10 +29,10 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
             Color.g = reader.ReadByte();
             Color.a = reader.ReadByte();
 
-            Color2.r = reader.ReadByte();
-            Color2.b = reader.ReadByte();
-            Color2.g = reader.ReadByte();
-            Color2.a = reader.ReadByte();
+            Color2.x = reader.ReadByte();
+            Color2.y = reader.ReadByte();
+            Color2.z = reader.ReadByte();
+            Color2.w = reader.ReadByte();
 
             TexCoord.x = reader.ReadUInt16();
             TexCoord.y = reader.ReadUInt16();

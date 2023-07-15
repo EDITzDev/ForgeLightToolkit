@@ -29,8 +29,8 @@ namespace ForgeLightToolkit.Editor.Importers
 
             ctx.AddObjectToAsset("Mesh", gcnkFile.Mesh);
 
-            if(gcnkFile.HeightMap is not null)
-                ctx.AddObjectToAsset("HeightMap", gcnkFile.HeightMap);
+            if(gcnkFile.DetailMask is not null)
+                ctx.AddObjectToAsset("DetailMask", gcnkFile.DetailMask);
         }
     }
 }

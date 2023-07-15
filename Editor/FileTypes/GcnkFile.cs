@@ -21,16 +21,16 @@ namespace ForgeLightToolkit.Editor.FileTypes
         public List<Tile> Tiles = new();
 
         [HideInInspector]
-        public Texture2D HeightMap;
+        public Texture2D DetailMask;
 
         [HideInInspector]
         public List<ExportRenderBatch> ExportRenderBatches = new();
 
         [HideInInspector]
-        public List<ushort> IndexBuffer = new();
+        public ushort[] IndexBuffer;
 
         [HideInInspector]
-        public List<Vertex> VertexBuffer = new();
+        public Vertex[] VertexBuffer;
 
         [HideInInspector]
         public Mesh Mesh;
@@ -124,53 +124,101 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 ExportRenderBatches.Add(exportRenderBatch);
             }
 
-            var heightMapBbp = reader.ReadInt32();
+            var detailMaskCount = reader.ReadInt32();
 
-            if (heightMapBbp > 0)
+            if (detailMaskCount > 0)
             {
-                if (Version > 4)
+                if (Version < 4)
                 {
-                    var heightMapSize = reader.ReadInt32();
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    var detailMaskSize = reader.ReadInt32();
 
-                    // TODO: Height Map
-
-                    reader.Skip(heightMapSize * heightMapSize * heightMapBbp / 2);
-
-                    /* var data = new byte[heightMapSize * heightMapSize * heightMapBbp];
-
-                    for (var i = 0; i < data.Length; i += 2)
+                    if (detailMaskCount == 1)
                     {
-                        data[i] = reader.ReadByte();
-                        data[i + 1] = 0;
+                        var data = new byte[detailMaskSize * detailMaskSize * 2 / 2];
+
+                        for (var i = 0; i < data.Length; i += 2)
+                        {
+                            var pixel = reader.ReadByte();
+
+                            data[i] = (byte)((pixel >> 4) * 16);
+                            data[i + 1] = (byte)((pixel & 15) * 16);
+                        }
+
+                        DetailMask = new Texture2D(detailMaskSize, detailMaskSize, TextureFormat.R8, false)
+                        {
+                            name = name
+                        };
+
+                        DetailMask.LoadRawTextureData(data);
+                        DetailMask.Apply();
                     }
-
-                    HeightMap = new Texture2D(heightMapSize, heightMapSize, TextureFormat.ARGB4444, true)
+                    else if (detailMaskCount == 2)
                     {
-                        name = name,
-                        requestedMipmapLevel = 1
-                    };
+                        var data = new byte[detailMaskSize * detailMaskSize * 4 / 2];
 
-                    HeightMap.LoadRawTextureData(data);
-                    HeightMap.Apply(); */
+                        for (var i = 0; i < data.Length; i += 2)
+                        {
+                            data[i + 1] = reader.ReadByte();
+                        }
+
+                        DetailMask = new Texture2D(detailMaskSize, detailMaskSize, TextureFormat.ARGB4444, false)
+                        {
+                            name = name
+                        };
+
+                        DetailMask.LoadRawTextureData(data);
+                        DetailMask.Apply();
+                    }
+                    else if (detailMaskCount == 4)
+                    {
+                        var data = reader.ReadBytes(detailMaskSize * detailMaskSize * 4 / 2);
+
+                        DetailMask = new Texture2D(detailMaskSize, detailMaskSize, TextureFormat.ARGB4444, false)
+                        {
+                            name = name
+                        };
+
+                        DetailMask.LoadRawTextureData(data);
+                        DetailMask.Apply();
+                    }
+                    else
+                    {
+                        reader.Skip(detailMaskSize * detailMaskSize * detailMaskCount / 2);
+
+                        Debug.Log($"Unknown Detail Mask Count: {detailMaskCount} File: {name}");
+                    }
                 }
             }
 
             var indexBufferCount = reader.ReadInt32();
 
-            for (var i = 0; i < indexBufferCount; i++)
-                IndexBuffer.Add(reader.ReadUInt16());
+            IndexBuffer = new ushort[indexBufferCount];
 
-            // TODO: FreeRealms PS3
+            for (int i = 0; i < IndexBuffer.Length; i++)
+                IndexBuffer[i] = reader.ReadUInt16();
+
+            if (!reader.IsLittleEndian)
+            {
+                var unknown = reader.ReadInt32();
+
+                reader.Skip(unknown);
+            }
 
             var vertexBufferCount = reader.ReadInt32();
 
-            for (var i = 0; i < vertexBufferCount; i++)
+            VertexBuffer = new Vertex[vertexBufferCount];
+
+            for (var i = 0; i < VertexBuffer.Length; i++)
             {
                 var vertexBuffer = new Vertex();
 
                 vertexBuffer.Deserialize(reader);
 
-                VertexBuffer.Add(vertexBuffer);
+                VertexBuffer[i] = vertexBuffer;
             }
 
             return true;
@@ -196,8 +244,18 @@ namespace ForgeLightToolkit.Editor.FileTypes
             var normals = VertexBuffer.Select(x => x.Normal).ToList();
             Mesh.SetNormals(normals);
 
+            var colors = VertexBuffer.Select(x => x.Color).ToList();
+            Mesh.SetColors(colors);
+
+            // Hack - Unity doesn't support multiple colors per vertex.
+            var colors2 = VertexBuffer.Select(x => x.Color2).ToList();
+            Mesh.SetUVs(7, colors2);
+
             var uvs = VertexBuffer.Select(x => x.TexCoord / 1024).ToList();
             Mesh.SetUVs(0, uvs);
+
+            var uvs2 = VertexBuffer.Select(x => x.TexCoord2 / 256).ToList();
+            Mesh.SetUVs(1, uvs2);
 
             Mesh.subMeshCount = ExportRenderBatches.Count;
 
@@ -205,8 +263,7 @@ namespace ForgeLightToolkit.Editor.FileTypes
             {
                 var exportRenderBatch = ExportRenderBatches[i];
 
-                var indices = IndexBuffer.Skip(exportRenderBatch.IndexOffset).Take(exportRenderBatch.IndexCount).ToList();
-
+                var indices = IndexBuffer.Skip(exportRenderBatch.IndexOffset).Take(exportRenderBatch.IndexCount).ToArray();
                 Mesh.SetIndices(indices, MeshTopology.Triangles, i, baseVertex: exportRenderBatch.VertexOffset);
             }
 

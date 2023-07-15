@@ -133,5 +133,19 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dma
         GhostSpeed = 3752275428,                // D3DXPC_SCALAR - D3DXPT_FLOAT
         VTraceSize = 2345716284,                // D3DXPC_SCALAR - D3DXPT_FLOAT
         SunGlare = 3697604236,                  // D3DXPC_SCALAR - D3DXPT_FLOAT
+
+        DetailMaskMap = 69317677,               // D3DXPC_OBJECT - D3DXPT_TEXTURE
+
+        DetailRepeat0 = 202117273,              // D3DXPC_SCALAR - D3DXPT_FLOAT
+        DetailRepeat1 = 2199912159,             // D3DXPC_SCALAR - D3DXPT_FLOAT
+        DetailRepeat2 = 1893292626,             // D3DXPC_SCALAR - D3DXPT_FLOAT
+        DetailRepeat3 = 1465198410,             // D3DXPC_SCALAR - D3DXPT_FLOAT
+        DetailRepeat4 = 1263210294,             // D3DXPC_SCALAR - D3DXPT_FLOAT
+
+        DetailColorMap0 = 3835265197,           // D3DXPC_OBJECT - D3DXPT_TEXTURE
+        DetailColorMap1 = 762221142,            // D3DXPC_OBJECT - D3DXPT_TEXTURE
+        DetailColorMap2 = 1226230182,           // D3DXPC_OBJECT - D3DXPT_TEXTURE
+        DetailColorMap3 = 598736601,            // D3DXPC_OBJECT - D3DXPT_TEXTURE
+        DetailColorMap4 = 2904166779            // D3DXPC_OBJECT - D3DXPT_TEXTURE
     }
 }

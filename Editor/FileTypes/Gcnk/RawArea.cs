@@ -7,7 +7,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
     [Serializable]
     public class RawArea
     {
-        public string Unknown;
+        public string Name;
 
         public int Unknown2;
 
@@ -16,13 +16,13 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
         public Vector4 Unknown4;
         public Vector4 Unknown5;
 
-        public int Unknown6;
+        public float Unknown6;
 
         public Vector3 Unknown7;
 
         public void Deserialize(Reader reader)
         {
-            Unknown = reader.ReadNullTerminatedString();
+            Name = reader.ReadNullTerminatedString();
 
             Unknown2 = reader.ReadInt32();
 
@@ -32,7 +32,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
 
             Unknown5 = reader.ReadVector4();
 
-            Unknown6 = reader.ReadInt32();
+            Unknown6 = reader.ReadSingle();
 
             Unknown7 = reader.ReadVector3();
         }

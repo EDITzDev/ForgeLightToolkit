@@ -1,8 +1,9 @@
-﻿using ForgeLightToolkit.Editor.FileTypes.Dma;
-using System;
+﻿using System;
 using System.Linq;
-using System.Xml.Linq;
+
 using UnityEngine;
+
+using ForgeLightToolkit.Editor.FileTypes.Dma;
 
 namespace ForgeLightToolkit.Editor.FileTypes.Dme
 {
@@ -122,8 +123,10 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dme
                 {
                     for (var i = 0; i < VertexBufferCount; i++)
                     {
-                        var x = BitConverter.ToSingle(VertexBuffer, texCoordEntry.Offset + i * VertexSize + 0);
-                        var y = BitConverter.ToSingle(VertexBuffer, texCoordEntry.Offset + i * VertexSize + 4);
+                        var startIndex = texCoordEntry.Offset + i * VertexSize;
+
+                        var x = BitConverter.ToSingle(VertexBuffer, startIndex + 0);
+                        var y = BitConverter.ToSingle(VertexBuffer, startIndex + 4);
 
                         uvs[i] = new Vector2(x, y);
                     }

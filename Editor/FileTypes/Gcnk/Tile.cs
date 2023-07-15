@@ -33,7 +33,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
 
         public List<RawGroup> RawGroups = new();
 
-        public int Unknown13;
+        public int Index;
 
         public Tile(int version)
         {
@@ -65,7 +65,13 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
             {
                 EcoDataList.Add(reader.ReadInt32());
 
-                // TODO: FreeRealms PS3
+                if(!reader.IsLittleEndian)
+                {
+                    var unknown = reader.ReadInt32();
+
+                    if(unknown > 0)
+                        reader.Skip(12 * unknown);
+                }
             }
 
             var runtimeObjectCount = reader.ReadInt32();
@@ -112,7 +118,7 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
                 RawGroups.Add(rawGroup);
             }
 
-            Unknown13 = reader.ReadInt32();
+            Index = reader.ReadInt32();
 
             reader.Skip(4);
         }

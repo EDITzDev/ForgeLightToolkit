@@ -28,7 +28,6 @@ namespace ForgeLightToolkit.Editor.Importers
             ctx.SetMainObject(gck2File);
 
             ctx.AddObjectToAsset("Texture", gck2File.Texture);
-            ctx.AddObjectToAsset("Material", gck2File.Material);
         }
     }
 }

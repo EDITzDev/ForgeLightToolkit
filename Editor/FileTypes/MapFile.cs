@@ -1,8 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Collections.Generic;
-using ForgeLightToolkit.Editor.FileTypes.Map;
+
 using UnityEngine;
+
+using ForgeLightToolkit.Editor.FileTypes.Map;
 
 namespace ForgeLightToolkit.Editor.FileTypes
 {
