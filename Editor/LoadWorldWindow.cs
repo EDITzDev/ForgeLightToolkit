@@ -21,7 +21,7 @@ namespace ForgeLightToolkit.Editor
         private bool _loadObjects = true;
         private bool _loadRoadMap = true;
 
-        [MenuItem("ForgeLight/Load World")]
+        [MenuItem("ForgeLight/Load World", priority = 10)]
         public static void ShowWindow()
         {
             GetWindow<LoadWorldWindow>("Load World");
