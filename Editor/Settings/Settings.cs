@@ -14,14 +14,14 @@ namespace ForgeLightToolkit.Settings
         public static SettingsProvider CreateSettingsProvider()
         {
             // ensure availability of the instance
-            _ = Settings.Instance;
+            _ = FLTKSettings.Instance;
 
             var provider = new SettingsProvider("Project/Forgelight Toolkit Settings", SettingsScope.Project)
             {
                 label = "Forgelight Toolkit Settings",
                 guiHandler = context =>
                 {
-                    SerializedObject settings = new(Settings.Instance);
+                    SerializedObject settings = new(FLTKSettings.Instance);
 
                     scrollPos = GUILayout.BeginScrollView(scrollPos);
                     GUILayout.BeginVertical();
@@ -34,10 +34,10 @@ namespace ForgeLightToolkit.Settings
 
                     if (settings.hasModifiedProperties)
                     {
-                        bool runReimport = invZProp.boolValue != Settings.Instance.InvertZ;
+                        bool runReimport = invZProp.boolValue != FLTKSettings.Instance.InvertZ;
 
                         settings.ApplyModifiedPropertiesWithoutUndo();
-                        Settings.Instance.save();
+                        FLTKSettings.Instance.save();
                         
                         if (runReimport)
                         {
@@ -52,18 +52,18 @@ namespace ForgeLightToolkit.Settings
         }
     }
 
-    public class Settings : ScriptableObject
+    public class FLTKSettings : ScriptableObject
     {
         private const string FilePath = "ProjectSettings/ForgeLightToolKitSettings.json";
 
-        private static Settings _instance;
-        public static Settings Instance
+        private static FLTKSettings _instance;
+        public static FLTKSettings Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = CreateInstance<Settings>();
+                    _instance = CreateInstance<FLTKSettings>();
                     _instance.load();
                 }
                 return _instance;
