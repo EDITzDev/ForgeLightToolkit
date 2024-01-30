@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ForgeLightToolkit.Settings;
+using System;
 
 using UnityEngine;
 
@@ -26,6 +27,11 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
             Type = reader.ReadByte();
 
             Position = reader.ReadVector4();
+            
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Position.z = -Position.z;
+            }
 
             Range = reader.ReadSingle();
             Intensity = reader.ReadSingle();

@@ -9,6 +9,7 @@ using ForgeLightToolkit.Editor.FileTypes;
 using ForgeLightToolkit.Editor.FileTypes.Dma;
 using ForgeLightToolkit.Editor.FileTypes.Map;
 using ForgeLightToolkit.Editor.FileTypes.Gcnk;
+using ForgeLightToolkit.Settings;
 
 namespace ForgeLightToolkit.Editor
 {
@@ -327,7 +328,10 @@ namespace ForgeLightToolkit.Editor
                 }
             }
 
-            worldObject.transform.localScale = new Vector3(1, 1, -1);
+            if (!FLTKSettings.Instance.InvertZ)
+            {
+                worldObject.transform.localScale = new Vector3(1, 1, -1);
+            }
         }
 
         private void LoadAdrFile(string assetsPath, string adrFileName, GameObject parentObject, Vector4 position, float scale, Vector4 rotation, string agrFileName = null)

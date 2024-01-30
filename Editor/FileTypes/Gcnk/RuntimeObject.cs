@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ForgeLightToolkit.Settings;
+using System;
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -58,7 +59,17 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
 
             Position = reader.ReadVector4();
 
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Position.z = -Position.z;
+            }
+
             Rotation = reader.ReadVector4();
+
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Rotation.x = -1 * Rotation.x;
+            }
 
             Scale = reader.ReadSingle();
 
