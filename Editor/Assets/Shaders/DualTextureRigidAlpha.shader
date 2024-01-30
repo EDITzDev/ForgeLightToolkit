@@ -15,7 +15,7 @@ Shader "Custom/DualTextureRigidAlpha"
     {
         Tags { "RenderType" = "TransparentCutout" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

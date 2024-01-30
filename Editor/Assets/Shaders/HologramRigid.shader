@@ -23,7 +23,7 @@ Shader "Custom/HologramRigid"
     {
         Tags { "RenderType" = "Opaque" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

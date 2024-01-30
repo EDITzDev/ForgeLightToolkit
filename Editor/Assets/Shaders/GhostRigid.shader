@@ -13,7 +13,7 @@ Shader "Custom/GhostRigid"
     {
         Tags { "Queue" = "Transparent" "RenderType" = "Transparent" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

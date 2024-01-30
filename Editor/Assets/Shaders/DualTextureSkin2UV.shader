@@ -13,7 +13,7 @@ Shader "Custom/DualTextureSkin2UV"
     {
         Tags { "RenderType" = "Opaque" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

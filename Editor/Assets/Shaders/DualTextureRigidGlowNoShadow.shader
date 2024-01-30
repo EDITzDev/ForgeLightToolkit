@@ -13,7 +13,7 @@ Shader "Custom/DualTextureRigidGlowNoShadow"
     {
         Tags { "RenderType" = "Opaque" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 
