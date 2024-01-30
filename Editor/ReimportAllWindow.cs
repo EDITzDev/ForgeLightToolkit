@@ -145,7 +145,7 @@ namespace ForgeLightToolkit
 
                 if (types != EnumFileType.None)
                 {
-                    Close();
+                    //Close();
                     reimport(types);
                 }
             }
@@ -196,7 +196,7 @@ namespace ForgeLightToolkit
 
                 if ((typeMask & EnumFileType.Gcnk) == EnumFileType.Gcnk)
                 {
-                    filters.Add("t:adrFile");
+                    filters.Add("t:gcnkFile");
                 }
 
                 if ((typeMask & EnumFileType.Gzne) == EnumFileType.Gzne)
