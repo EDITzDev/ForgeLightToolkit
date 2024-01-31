@@ -13,7 +13,7 @@ Shader "Custom/RuntimeTerrain_2"
     {
         Tags { "RenderType" = "Opaque" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

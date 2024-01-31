@@ -13,7 +13,7 @@ Shader "Custom/SimpleRigidAlphaScreen"
     {
         Tags { "Queue" = "AlphaTest" "RenderType" = "TransparentCutout" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

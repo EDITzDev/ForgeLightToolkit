@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using ForgeLightToolkit.Editor.FileTypes.Map;
+using ForgeLightToolkit.Settings;
 
 namespace ForgeLightToolkit.Editor.FileTypes
 {
@@ -25,6 +26,11 @@ namespace ForgeLightToolkit.Editor.FileTypes
                     Id = reader.ReadInt32(),
                     Position = reader.ReadVector3()
                 };
+
+                if (FLTKSettings.Instance.InvertZ)
+                {
+                    node.Position.z = -node.Position.z;
+                }
 
                 var edgeCount = reader.ReadUInt32();
 

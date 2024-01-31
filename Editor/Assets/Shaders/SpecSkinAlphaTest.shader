@@ -11,7 +11,7 @@ Shader "Custom/SpecSkinAlphaTest"
     {
         Tags { "RenderType" = "Opaque" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

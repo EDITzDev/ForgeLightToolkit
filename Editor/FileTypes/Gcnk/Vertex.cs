@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ForgeLightToolkit.Settings;
+using UnityEngine;
 
 namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
 {
@@ -18,9 +19,19 @@ namespace ForgeLightToolkit.Editor.FileTypes.Gcnk
         {
             Position = reader.ReadVector3();
 
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Position.z = -Position.z;
+            }
+
             Normal.x = reader.ReadByte() / 127.5f - 1;
             Normal.y = reader.ReadByte() / 127.5f - 1;
             Normal.z = reader.ReadByte() / 127.5f - 1;
+
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Normal.z = -Normal.z;
+            }
 
             reader.Skip(1);
 

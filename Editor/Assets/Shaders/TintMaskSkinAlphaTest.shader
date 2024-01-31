@@ -18,7 +18,7 @@ Shader "Custom/TintMaskSkinAlphaTest"
     {
         Tags { "Queue" = "AlphaTest" "RenderType" = "TransparentCutout" }
         LOD 200
-        Cull Front
+        Cull Off
 
         CGPROGRAM
 

@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 
 using ForgeLightToolkit.Editor;
+using ForgeLightToolkit.Settings;
 
 namespace ForgeLightToolkit
 {
@@ -18,6 +19,11 @@ namespace ForgeLightToolkit
         public void Deserialize(Reader reader)
         {
             Position = reader.ReadVector3();
+
+            if (FLTKSettings.Instance.InvertZ)
+            {
+                Position.z = -Position.z;
+            }
 
             Unknown = reader.ReadByte();
 

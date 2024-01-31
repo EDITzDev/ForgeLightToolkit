@@ -9,6 +9,7 @@ using ForgeLightToolkit.Editor.FileTypes;
 using ForgeLightToolkit.Editor.FileTypes.Dma;
 using ForgeLightToolkit.Editor.FileTypes.Map;
 using ForgeLightToolkit.Editor.FileTypes.Gcnk;
+using ForgeLightToolkit.Settings;
 
 namespace ForgeLightToolkit.Editor
 {
@@ -21,7 +22,7 @@ namespace ForgeLightToolkit.Editor
         private bool _loadObjects = true;
         private bool _loadRoadMap = true;
 
-        [MenuItem("ForgeLight/Load World")]
+        [MenuItem("ForgeLight/Load World", priority = 10)]
         public static void ShowWindow()
         {
             GetWindow<LoadWorldWindow>("Load World");
@@ -187,7 +188,10 @@ namespace ForgeLightToolkit.Editor
 
                         foreach (var tile in gcnkFile.Tiles)
                         {
-                            var chunkMaterial = new Material(Shader.Find($"Custom/RuntimeTerrain_{tile.EcoDataList.Count}"))
+                            var shaderName = $"RuntimeTerrain_{tile.EcoDataList.Count}";
+                            var shader = FLTKSettings.Instance.GetShader(shaderName) ?? Shader.Find($"Custom/{shaderName}");
+
+                            var chunkMaterial = new Material(shader)
                             {
                                 name = $"Tile {tile.Index}"
                             };
@@ -327,7 +331,10 @@ namespace ForgeLightToolkit.Editor
                 }
             }
 
-            worldObject.transform.localScale = new Vector3(1, 1, -1);
+            if (!FLTKSettings.Instance.InvertZ)
+            {
+                worldObject.transform.localScale = new Vector3(1, 1, -1);
+            }
         }
 
         private void LoadAdrFile(string assetsPath, string adrFileName, GameObject parentObject, Vector4 position, float scale, Vector4 rotation, string agrFileName = null)
@@ -345,6 +352,17 @@ namespace ForgeLightToolkit.Editor
             if (adrFile.ModelFileName is null)
             {
                 Debug.LogError($"Adr has no model file name. {adrFilePath}");
+                return;
+            }
+
+            var overrideModel = FLTKSettings.Instance.GetModel(adrFile.ModelFileName);
+            if (overrideModel != null)
+            {
+                GameObject go = Instantiate(overrideModel);
+                go.transform.parent = parentObject.transform;
+                go.transform.localPosition = position;
+                go.transform.localScale = Vector3.one * scale;
+                go.transform.localRotation = Quaternion.Euler(rotation.y * Mathf.Rad2Deg, rotation.x * Mathf.Rad2Deg, rotation.z * Mathf.Rad2Deg);
                 return;
             }
 
@@ -397,7 +415,7 @@ namespace ForgeLightToolkit.Editor
 
                 meshObject.name = materialDefinition.Name;
 
-                var materialShader = Shader.Find($"Custom/{materialDefinition.Name}");
+                var materialShader = FLTKSettings.Instance.GetShader(materialDefinition.Name) ?? Shader.Find($"Custom/{materialDefinition.Name}");
 
                 if (materialShader is null)
                 {

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 using ForgeLightToolkit.Editor.FileTypes.Dma;
+using ForgeLightToolkit.Settings;
 
 namespace ForgeLightToolkit.Editor.FileTypes.Dme
 {
@@ -27,9 +28,12 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dme
 
         public Mesh Mesh;
 
-        public bool CreateMesh(string name, MaterialEntry materialEntry)
+        public bool CreateMesh(string name, MaterialEntry materialEntry, int meshIndex)
         {
-            Mesh = new Mesh();
+            Mesh = new Mesh
+            {
+                name = $"{name}_Mesh_{meshIndex}",
+            };
 
             var materialDefinition = MaterialInfo.Instance.MaterialDefinitions.SingleOrDefault(x => x.NameHash == materialEntry.Hash);
 
@@ -72,6 +76,11 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dme
                     var y = BitConverter.ToSingle(VertexBuffer, positionEntry.Offset + i * VertexSize + 4);
                     var z = BitConverter.ToSingle(VertexBuffer, positionEntry.Offset + i * VertexSize + 8);
 
+                    if (FLTKSettings.Instance.InvertZ)
+                    {
+                        z = -z;
+                    }
+
                     vertices[i] = new Vector3(x, y, z);
                 }
             }
@@ -100,6 +109,11 @@ namespace ForgeLightToolkit.Editor.FileTypes.Dme
                         var x = BitConverter.ToSingle(VertexBuffer, startIndex + 0);
                         var y = BitConverter.ToSingle(VertexBuffer, startIndex + 4);
                         var z = BitConverter.ToSingle(VertexBuffer, startIndex + 8);
+
+                        if (FLTKSettings.Instance.InvertZ)
+                        {
+                            z = -z;
+                        }
 
                         normals[i] = new Vector3(x, y, z);
                     }

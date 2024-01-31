@@ -73,7 +73,7 @@ namespace ForgeLightToolkit.Editor.FileTypes
                 {
                     var materialEntry = DmaFile.MaterialEntries[meshEntry.MaterialIndex];
 
-                    if (!meshEntry.CreateMesh(name, materialEntry))
+                    if (!meshEntry.CreateMesh(name, materialEntry, i))
                         return false;
 
                     Meshes.Add(meshEntry);

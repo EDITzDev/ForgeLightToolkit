@@ -28,3 +28,6 @@ A Unity package that imports ForgeLight assets within Unity.
 
 * Load World (WIP) - Loads the `.gzne` and all available `.gcnk` files for the chosen world including all the objects and lights (if enabled).
 * Load All Worlds (WIP) - Loads all the available `.gzne` and `.gcnk` files for the chosen world including all the objects and lights (if enabled).
+
+## Default Shaders
+The provided shaders are example shaders based on the inputs of the equivalent Forgelight shaders. They may not be perfect recreations. The provided shaders also have culling disabled. To enable "backface" culling, every shader's `Cull Off` line should be changed to `Cull Front` when the `Invert Z Axis` setting is false, and to `Cull Back` when the `Invert Z Axis` setting is set to true.
