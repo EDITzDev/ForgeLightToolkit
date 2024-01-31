@@ -28,6 +28,8 @@ namespace ForgeLightToolkit.Settings
 
                     var invZProp = settings.FindProperty("invertZ");
                     EditorGUILayout.PropertyField(invZProp, new GUIContent("Invert Z Axis"));
+                    EditorGUILayout.PropertyField(settings.FindProperty("shaderOverrides"), new GUIContent("Shader Name Overrides"));
+                    EditorGUILayout.PropertyField(settings.FindProperty("modelOverrides"), new GUIContent("Model Name Overrides"));
 
                     GUILayout.EndVertical();
                     GUILayout.EndScrollView();
@@ -74,9 +76,25 @@ namespace ForgeLightToolkit.Settings
         [SerializeField]
         private bool invertZ;
 
+        public List<ShaderOverride> ShaderOverrides => shaderOverrides;
+        [SerializeField]
+        private List<ShaderOverride> shaderOverrides;
+
+        public List<ModelOverride> ModelOverrides => modelOverrides;
+        [SerializeField]
+        private List<ModelOverride> modelOverrides;
+
         private void initDefaults()
         {
             invertZ = false;
+            shaderOverrides = new();
+            modelOverrides = new();
+        }
+
+        private void initNullable()
+        {
+            shaderOverrides ??= new();
+            modelOverrides ??= new();
         }
 
         private void load()
@@ -97,6 +115,8 @@ namespace ForgeLightToolkit.Settings
                 Debug.LogException(e);
                 initDefaults();
             }
+
+            initNullable();
         }
 
         internal void save()
@@ -108,5 +128,55 @@ namespace ForgeLightToolkit.Settings
             }
             File.WriteAllText(FilePath, EditorJsonUtility.ToJson(this, true));
         }
+
+        public Shader GetShader(string name)
+        {
+            foreach (var so in shaderOverrides)
+            {
+                if (so.ShaderName == name)
+                {
+                    return so.Shader;
+                }
+            }
+
+            return null;
+        }
+
+        public GameObject GetModel(string name)
+        {
+            foreach (var mo in modelOverrides)
+            {
+                if (mo.ObjectName == name)
+                {
+                    return mo.Object;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    [Serializable]
+    public class ShaderOverride
+    {
+        public string ShaderName => shaderName;
+        [SerializeField]
+        private string shaderName;
+
+        public Shader Shader => shader;
+        [SerializeField]
+        private Shader shader;
+    }
+
+    [Serializable]
+    public class ModelOverride
+    {
+        public string ObjectName => objName;
+        [SerializeField]
+        private string objName;
+
+        public GameObject Object => obj;
+        [SerializeField]
+        private GameObject obj;
     }
 }

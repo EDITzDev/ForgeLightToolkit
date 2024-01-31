@@ -188,7 +188,10 @@ namespace ForgeLightToolkit.Editor
 
                         foreach (var tile in gcnkFile.Tiles)
                         {
-                            var chunkMaterial = new Material(Shader.Find($"Custom/RuntimeTerrain_{tile.EcoDataList.Count}"))
+                            var shaderName = $"RuntimeTerrain_{tile.EcoDataList.Count}";
+                            var shader = FLTKSettings.Instance.GetShader(shaderName) ?? Shader.Find($"Custom/{shaderName}");
+
+                            var chunkMaterial = new Material(shader)
                             {
                                 name = $"Tile {tile.Index}"
                             };
@@ -352,6 +355,17 @@ namespace ForgeLightToolkit.Editor
                 return;
             }
 
+            var overrideModel = FLTKSettings.Instance.GetModel(adrFile.ModelFileName);
+            if (overrideModel != null)
+            {
+                GameObject go = Instantiate(overrideModel);
+                go.transform.parent = parentObject.transform;
+                go.transform.localPosition = position;
+                go.transform.localScale = Vector3.one * scale;
+                go.transform.localRotation = Quaternion.Euler(rotation.y * Mathf.Rad2Deg, rotation.x * Mathf.Rad2Deg, rotation.z * Mathf.Rad2Deg);
+                return;
+            }
+
             var dmeFilePath = Path.Combine(assetsPath, adrFile.ModelFileName);
 
             var dmeFile = AssetDatabase.LoadAssetAtPath<DmeFile>(dmeFilePath);
@@ -401,7 +415,7 @@ namespace ForgeLightToolkit.Editor
 
                 meshObject.name = materialDefinition.Name;
 
-                var materialShader = Shader.Find($"Custom/{materialDefinition.Name}");
+                var materialShader = FLTKSettings.Instance.GetShader(materialDefinition.Name) ?? Shader.Find($"Custom/{materialDefinition.Name}");
 
                 if (materialShader is null)
                 {
